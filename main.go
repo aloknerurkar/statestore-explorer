@@ -80,19 +80,24 @@ func main() {
 				prefix = tokens[1]
 			}
 			count := 0
-			st.Iterate(prefix, func(_, _ []byte) (bool, error) {
+			var totalSize int64
+			st.Iterate(prefix, func(k, v []byte) (bool, error) {
 				count++
+				totalSize += int64(len(v))
+				totalSize += int64(len(k))
 				return false, nil
 			})
 			// For entries which use shed, there is a prefix added before key
 			if count == 0 {
 				np := append([]byte{1}, []byte(prefix)...)
-				st.Iterate(string(np), func(_, _ []byte) (bool, error) {
+				st.Iterate(string(np), func(k, v []byte) (bool, error) {
 					count++
+					totalSize += int64(len(v))
+					totalSize += int64(len(k))
 					return false, nil
 				})
 			}
-			fmt.Println("count: ", count)
+			fmt.Println("count: ", count, "total size: ", totalSize)
 		case "list":
 			if len(tokens) > 3 {
 				fmt.Println("usage: list <prefix>")
